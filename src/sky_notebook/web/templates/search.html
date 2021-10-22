@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Search</h1>
+    
+    <form method="GET" action="/search" class="mb-8">
+        <div class="flex gap-2">
+            <input type="text" name="q" value="{{ q }}" placeholder="Search notes, targets, events..." class="flex-grow p-2 rounded bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-blue-500">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Search</button>
+        </div>
+    </form>
+
+    {% if q %}
+    <div class="space-y-4">
+        <h2 class="text-xl mb-4">{{ results|length }} results for "{{ q }}"</h2>
+        {% for r in results %}
+        <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <h3 class="text-lg font-semibold">
+                <a href="/{{ r.type }}/{{ r.id }}" class="hover:underline text-blue-400">{{ r.title }}</a>
+                <span class="text-xs ml-2 px-2 py-1 bg-gray-700 rounded text-gray-300 uppercase">{{ r.type }}</span>
+            </h3>
+            <p class="text-gray-300 text-sm mt-2">...{{ r.snippet|safe }}...</p>
+        </div>
+        {% else %}
+        <p class="text-gray-400">No results found.</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
