@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Targets</h1>
+    
+    <div class="grid grid-cols-2 gap-4">
+        {% for target in targets %}
+        <div class="bg-gray-800 p-4 rounded-lg shadow border border-gray-700">
+            <h2 class="text-xl font-semibold">
+                <a href="/target/{{ target.metadata.id }}" class="hover:underline text-blue-400">
+                    {{ target.metadata.name }}
+                </a>
+            </h2>
+            <div class="text-sm text-gray-400 mt-2">
+                {% if target.metadata.aliases %}
+                <p><strong>Aliases:</strong> {{ target.metadata.aliases | join(', ') }}</p>
+                {% endif %}
+                {% if target.metadata.ra and target.metadata.dec %}
+                <p><strong>Coords:</strong> {{ target.metadata.ra }}, {{ target.metadata.dec }} ({{ target.metadata.epoch }})</p>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-400">No targets found. Use the CLI to create one!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

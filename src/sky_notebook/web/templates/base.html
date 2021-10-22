@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Notebook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #1a202c; color: #e2e8f0; } /* Dark mode default */
+        .red-mode { background-color: #000; color: #ff0000; }
+        .red-mode * { color: #ff0000 !important; border-color: #ff0000 !important; }
+        .red-mode img { filter: grayscale(100%) sepia(100%) hue-rotate(300deg) saturate(500%); opacity: 0.7; }
+    </style>
+    <script>
+        function toggleRedMode() {
+            document.body.classList.toggle('red-mode');
+        }
+    </script>
+</head>
+<body class="font-sans antialiased h-screen flex flex-col">
+    <header class="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center">
+        <div class="text-xl font-bold"><a href="/">Sky Notebook</a></div>
+        <nav class="space-x-4">
+            <a href="/" class="hover:text-white">Journal</a>
+            <a href="/targets" class="hover:text-white">Targets</a>
+            <a href="/search" class="hover:text-white">Search</a>
+            <button onclick="toggleRedMode()" class="bg-red-900 text-white px-3 py-1 rounded text-sm">Red Mode</button>
+        </nav>
+    </header>
+    <main class="flex-grow p-6 overflow-auto">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<div class="max-w-4xl mx-auto space-y-6">
+    
+    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+        <h1 class="text-3xl font-bold mb-2">Session: {{ session.metadata.id }}</h1>
+        <div class="grid grid-cols-2 gap-4 text-sm text-gray-300">
+            <div><strong>Night:</strong> {{ session.metadata.observing_night }}</div>
+            <div><strong>Outcome:</strong> {{ session.metadata.outcome or 'Unknown' }}</div>
+            <div><strong>Start:</strong> {{ session.metadata.start_time }}</div>
+            <div><strong>End:</strong> {{ session.metadata.end_time or 'Ongoing' }}</div>
+            <div><strong>Targets:</strong> {{ session.metadata.targets | join(', ') }}</div>
+            <div><strong>Project:</strong> {{ session.metadata.project or 'None' }}</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2 space-y-6">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Narrative & Notes</h2>
+                <div id="markdown-content" class="prose prose-invert max-w-none">
+                    <!-- markdown rendered here -->
+                </div>
+            </div>
+            
+            {% if session.metadata.events %}
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Timeline</h2>
+                <ul class="space-y-3 relative border-l border-gray-600 ml-3 pl-4">
+                    {% for event in session.metadata.events %}
+                    <li>
+                        <span class="absolute -left-1.5 w-3 h-3 rounded-full bg-blue-500"></span>
+                        <div class="text-xs text-gray-400">{{ event.timestamp }}</div>
+                        <div class="font-semibold text-sm">{{ event.event_type }}</div>
+                        <div class="text-gray-300">{{ event.content }}</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Files</h2>
+                <ul class="space-y-2 text-sm">
+                    {% for file in session.metadata.files %}
+                    <li class="break-words">
+                        <span class="bg-gray-700 px-1 rounded">{{ file.type }}</span> 
+                        {{ file.path }}
+                    </li>
+                    {% else %}
+                    <li class="text-gray-400">No files referenced.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <h2 class="text-xl font-bold mb-4 border-b border-gray-700 pb-2">Measurements</h2>
+                <ul class="space-y-2 text-sm">
+                    {% for m in session.metadata.measurements %}
+                    <li>
+                        <strong>{{ m.quantity }}:</strong> {{ m.value }} {{ m.unit }}
+                    </li>
+                    {% else %}
+                    <li class="text-gray-400">No measurements.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const rawMarkdown = {{ session.content | tojson }};
+    document.getElementById('markdown-content').innerHTML = marked.parse(rawMarkdown);
+</script>
+{% endblock %}
