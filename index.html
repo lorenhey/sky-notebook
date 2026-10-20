@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sky-notebook — Cuaderno Científico de Observación Astronómica</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="flex flex-col min-h-screen text-slate-100 antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-xl shadow-inner">
+            <i class="fa-solid fa-satellite-dish"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-lg font-bold tracking-tight text-white font-mono">sky-notebook</span>
+              <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">v2.0.0</span>
+            </div>
+            <p class="text-xs text-slate-400 hidden sm:block">Cuaderno Científico & Bitácora de Observación Astronómica</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex space-x-1">
+          <button class="nav-tab-btn active-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="journal">
+            <i class="fa-solid fa-book-journal-whills"></i> Diario
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="planner">
+            <i class="fa-solid fa-chart-line"></i> Planificador Alt-Az
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="targets">
+            <i class="fa-solid fa-crosshairs"></i> Objetivos
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="rigs">
+            <i class="fa-solid fa-compass-drafting"></i> Instrumental
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="editor">
+            <i class="fa-solid fa-pen-to-square"></i> Editor YAML
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="cli">
+            <i class="fa-solid fa-terminal"></i> Terminal CLI
+          </button>
+          <button class="nav-tab-btn inactive-tab px-3 py-2 text-xs font-semibold rounded-t flex items-center gap-1.5 transition" data-tab="treatise">
+            <i class="fa-solid fa-atom"></i> Tratado
+          </button>
+        </nav>
+
+        <!-- Action Tools: Red Mode & Vault Reset -->
+        <div class="flex items-center gap-2">
+          <button id="red-mode-toggle" title="Modo Nocturno (Preservar adaptación a la oscuridad) [Shift+R]" class="px-3 py-1.5 bg-rose-950 hover:bg-rose-900 border border-rose-800 text-rose-300 rounded text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i class="fa-solid fa-eye"></i> <span class="hidden sm:inline">Modo Rojo</span>
+          </button>
+          <a href="https://github.com/lorenhey/sky-notebook" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white p-2 text-sm" title="Repositorio en GitHub">
+            <i class="fa-brands fa-github"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Tabs (Horizontal Scroll) -->
+    <div class="md:hidden flex overflow-x-auto px-2 border-t border-slate-800 py-1 space-x-1 bg-slate-950">
+      <button class="nav-tab-btn active-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="journal">Diario</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="planner">Planificador</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="targets">Objetivos</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="rigs">Instrumental</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="editor">Editor</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="cli">CLI</button>
+      <button class="nav-tab-btn inactive-tab px-2.5 py-1 text-xs whitespace-nowrap rounded" data-tab="treatise">Tratado</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- TAB 1: JOURNAL (DIARIO DE OBSERVACIÓN) -->
+    <section id="tab-journal" class="tab-content space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Session Selector List -->
+        <div class="lg:col-span-4 space-y-4">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-list-check text-sky-400"></i> Sesiones Registradas
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Vault Local</span>
+          </div>
+          
+          <div id="journal-sessions-list" class="space-y-3">
+            <!-- Dynamic session cards injected here -->
+          </div>
+        </div>
+
+        <!-- Right Column: Full Session Inspection & Narrative -->
+        <div class="lg:col-span-8">
+          <div id="session-detail-view">
+            <!-- Dynamic detailed view injected here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: ALT-AZ PLANNER & EPHEMERIS -->
+    <section id="tab-planner" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-6">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-mountain-sun text-amber-400"></i> Planificador de Altitud & Efemérides
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Simulación de trayectoria horizontal, zonas de penumbra, tránsito meridiano y límite de masa de aire ($X \le 2.0$).
+            </p>
+          </div>
+
+          <!-- Selectors: Target & Site -->
+          <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div class="flex-1 md:flex-initial">
+              <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Objetivo Celestre</label>
+              <select id="planner-target-select" class="bg-slate-800 border border-slate-700 text-xs text-white rounded px-3 py-1.5 focus:outline-none focus:border-sky-500 w-full"></select>
+            </div>
+            <div class="flex-1 md:flex-initial">
+              <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Sitio Observacional</label>
+              <select id="planner-site-select" class="bg-slate-800 border border-slate-700 text-xs text-white rounded px-3 py-1.5 focus:outline-none focus:border-sky-500 w-full"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Info & Moon Phase Cards -->
+        <div id="planner-target-info">
+          <!-- Dynamic metadata cards -->
+        </div>
+
+        <!-- Interactive SVG Chart Container -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span><i class="fa-solid fa-chart-area text-sky-400"></i> Curva de Altitud a lo largo de la Noche (18:00 a 06:00 hora local)</span>
+            <span class="text-[11px]"><span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1"></span>Zona Óptima ($a \ge 30^\circ$, $X \le 2$)</span>
+          </div>
+          <div id="altaz-chart-container" class="w-full">
+            <!-- Dynamic SVG injected here -->
+          </div>
+          <p class="text-[11px] text-slate-500 text-center font-mono">
+            Pasá el cursor sobre el gráfico para consultar la hora, altitud, acimut y masa de aire calculada con la formulación de Rozenberg (1966).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TARGETS (OBJETIVOS CELESTES) -->
+    <section id="tab-targets" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-6">
+        
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-star text-sky-400"></i> Catálogo de Objetivos Celestes
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Objetivos configurados en el vault con coordenadas ecuatoriales J2000 y notas de adquisición.</p>
+          </div>
+        </div>
+
+        <!-- Targets Grid -->
+        <div id="targets-catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamic cards injected here -->
+        </div>
+
+        <!-- Add New Target Form -->
+        <div class="mt-8 pt-6 border-t border-slate-800">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-plus-circle text-emerald-400"></i> Registrar Nuevo Objetivo Celestre
+          </h3>
+          <form id="new-target-form" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">ID Único (ej. m83, ngc253)</label>
+              <input type="text" id="nt-id" required placeholder="m83" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Nombre Común</label>
+              <input type="text" id="nt-name" required placeholder="Southern Pinwheel" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Ascensión Recta (RA)</label>
+              <input type="text" id="nt-ra" required placeholder="13h37m00.9s" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Declinación (Dec)</label>
+              <input type="text" id="nt-dec" required placeholder="-29d51m56s" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Tipo de Objeto</label>
+              <input type="text" id="nt-type" placeholder="Galaxia Espiral Barrada" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 mb-1">Notas de Captura / Filtros Recomendados</label>
+              <input type="text" id="nt-notes" placeholder="Excelente respuesta en LRGB con núcleos brillantes..." class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white">
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded transition">
+                Guardar Objetivo
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: RIGS & OPTICAL CALCULATOR -->
+    <section id="tab-rigs" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-6">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-microscope text-purple-400"></i> Calculador Óptico & Tren Instrumental
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Análisis metrológico de muestreo espacial (Nyquist), escala de placa, resolución angular y campo visual.
+            </p>
+          </div>
+
+          <div class="w-full md:w-auto">
+            <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Cargar Preset de Instrumental</label>
+            <select id="calc-rig-preset-select" class="bg-slate-800 border border-slate-700 text-xs text-white rounded px-3 py-1.5 focus:outline-none focus:border-sky-500 w-full"></select>
+          </div>
+        </div>
+
+        <!-- Input Parameters Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-xs">
+          <div>
+            <label class="block text-slate-400 mb-1">Apertura Útil $D$ (mm)</label>
+            <input type="number" id="calc-aperture" value="80" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Distancia Focal $f$ (mm)</label>
+            <input type="number" id="calc-focal" value="600" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Tamaño de Píxel $p$ (µm)</label>
+            <input type="number" step="0.01" id="calc-pixel" value="3.76" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Ancho Sensor (px)</label>
+            <input type="number" id="calc-width" value="6248" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">Alto Sensor (px)</label>
+            <input type="number" id="calc-height" value="4176" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white font-mono">
+          </div>
+        </div>
+
+        <!-- Calculated Metric Cards Container -->
+        <div id="optical-results-container">
+          <!-- Dynamic results injected here -->
+        </div>
+
+        <!-- Analytical Equations Box -->
+        <div class="p-4 bg-slate-950 rounded-lg border border-slate-800 text-xs text-slate-300 space-y-2">
+          <h4 class="font-bold text-sky-400">Formulación Matemática Aplicada:</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-[11px]">
+            <div class="p-2 bg-slate-900 rounded border border-slate-800">
+              <span class="text-slate-500">Escala de Placa:</span><br>
+              $s = \frac{206.265 \cdot p}{f} \quad [\mathrm{arcsec/px}]$
+            </div>
+            <div class="p-2 bg-slate-900 rounded border border-slate-800">
+              <span class="text-slate-500">Criterio de Dawes:</span><br>
+              $\theta_D = \frac{116}{D} \quad [\mathrm{arcsec}]$
+            </div>
+            <div class="p-2 bg-slate-900 rounded border border-slate-800">
+              <span class="text-slate-500">Criterio de Nyquist:</span><br>
+              $s \approx \frac{\mathrm{FWHM}_{\text{seeing}}}{2 \sim 3}$
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: MARKDOWN & YAML EDITOR -->
+    <section id="tab-editor" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-4">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-code text-cyan-400"></i> Editor Markdown + Frontmatter YAML
+            </h2>
+            <select id="editor-session-select" class="bg-slate-800 border border-slate-700 text-xs text-white rounded px-3 py-1 font-mono"></select>
+          </div>
+          <div class="flex gap-2">
+            <button id="editor-save-btn" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold">
+              Guardar en Vault
+            </button>
+            <button id="editor-download-btn" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded text-xs font-semibold">
+              Descargar .md
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">Archivo Fuente (YAML Frontmatter + Markdown):</label>
+            <textarea id="editor-raw-textarea" rows="20" class="w-full bg-slate-950 border border-slate-800 rounded p-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-sky-500"></textarea>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-400 mb-1">Vista Previa Renderizada en Tiempo Real:</label>
+            <div id="editor-live-preview" class="w-full h-[325px] overflow-y-auto bg-slate-950 border border-slate-800 rounded p-4 text-xs text-slate-300"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: IN-BROWSER WEB CLI -->
+    <section id="tab-cli" class="tab-content hidden space-y-4">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-4">
+        
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-emerald-400"></i> Terminal CLI de sky-notebook
+          </h2>
+          <span class="text-xs font-mono text-slate-500">Bash / Typer Emulator</span>
+        </div>
+
+        <div class="bg-slate-950 rounded-lg border border-slate-800 p-4 font-mono text-xs flex flex-col h-96 shadow-inner">
+          <div id="cli-terminal-output" class="flex-grow overflow-y-auto space-y-1 pr-2">
+            <!-- Output lines injected here -->
+          </div>
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-800/80 mt-2">
+            <span class="text-emerald-400 font-bold">$</span>
+            <input type="text" id="cli-terminal-input" placeholder="Escribí un comando (ej: help, demo, list, ephemeris ngc3372)..." class="flex-grow bg-transparent text-slate-100 focus:outline-none text-xs">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: METROLOGICAL & OBSERVATIONAL TREATISE -->
+    <section id="tab-treatise" class="tab-content hidden space-y-6">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 space-y-6 text-sm text-slate-300 leading-relaxed">
+        
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+            <i class="fa-solid fa-book-bookmark text-amber-400"></i> Tratado Metrológico de Adquisición Astronómica
+          </h2>
+          <p class="text-xs text-slate-400 mt-1 font-mono">
+            Principios físicos de cuantificación de señal, degradación atmosférica y trazabilidad observacional.
+          </p>
+        </div>
+
+        <article class="space-y-6">
+          <section class="space-y-2">
+            <h3 class="text-lg font-bold text-sky-400">1. Extinción Atmosférica y Masa de Aire ($X$)</h3>
+            <p>
+              La luz proveniente de un objeto astronómico atraviesa la atmósfera terrestre sufriendo absorción molecular y dispersión (Rayleigh y Mie). La masa de aire relativa $X$ cuantifica el camino óptico en unidades de la masa de aire vertical en el cenit ($X_{\text{zenith}} = 1$):
+            </p>
+            <div class="p-3 bg-slate-950 rounded font-mono text-xs border border-slate-800 text-center">
+              $$X(a) = \frac{1}{\sin a + 0.001867 \, (a + 3.8299^\circ)^{-1.2536}} \quad (\text{Rozenberg, 1966})$$
+            </div>
+            <p>
+              Para fotografía científica y fotometría diferencial de precisión, la regla metrológica estándar prescribe operar siempre con $X \le 2.0$ (altitud $a \ge 30^\circ$). Superar dicha masa de aire introduce dispersión atmosférica diferencial severa (separando los componentes azul y rojo de la imagen puntual) e incrementa el centelleo y la turbulencia.
+            </p>
+          </section>
+
+          <section class="space-y-2">
+            <h3 class="text-lg font-bold text-sky-400">2. Criterio de Muestreo Espacial de Nyquist-Shannon</h3>
+            <p>
+              La función de dispersión puntual del sistema (PSF) resulta de la convolución entre la difracción del telescopio ($\theta \approx 1.22 \lambda / D$) y la función de transferencia de la turbulencia atmosférica (seeing $\text{FWHM}_{\text{atm}}$). Para reconstruir la información espacial sin artefactos de aliasing (pixelado cuadrado de estrellas), el tamaño de píxel en el cielo debe satisfacer:
+            </p>
+            <div class="p-3 bg-slate-950 rounded font-mono text-xs border border-slate-800 text-center">
+              $$s = \frac{206.265 \cdot p}{f} \approx \frac{\text{FWHM}}{2.5 \sim 3.0} \quad [\mathrm{arcsec/pixel}]$$
+            </div>
+            <p>
+              Si $s > \text{FWHM} / 2$, el sistema está en <em>submuestreo</em> (útil para galaxias extensas y encuadres rápidos de cielo amplio). Si $s < \text{FWHM} / 3.5$, se produce <em>sobremuestreo</em>, diluyendo el flujo estelar en un número excesivo de píxeles sin ganar resolución real y penalizando la relación señal/ruido (SNR).
+            </p>
+          </section>
+
+          <section class="space-y-2">
+            <h3 class="text-lg font-bold text-sky-400">3. Ecuación de Relación Señal/Ruido (SNR)</h3>
+            <p>
+              Para un detector CCD/CMOS enfriado con ganancia unitaria, la relación señal/ruido en una apertura fotométrica de $n_{\text{pix}}$ píxeles tras un tiempo de integración $t$ está gobernada por la ecuación clásica del detector astronómico:
+            </p>
+            <div class="p-3 bg-slate-950 rounded font-mono text-xs border border-slate-800 text-center">
+              $$\text{SNR} = \frac{N_* \cdot t}{\sqrt{N_* \cdot t + n_{\text{pix}} \, (B_{\text{sky}} \cdot t + D \cdot t + \sigma_{\text{read}}^2)}}$$
+            </div>
+            <p>
+              Donde $N_*$ es la tasa de fotones del objeto, $B_{\text{sky}}$ es el brillo de fondo de cielo (directamente vinculado a la escala de Bortle / SQM), $D$ es la corriente oscura de electrones térmicos y $\sigma_{\text{read}}$ es el ruido de lectura del convertidor analógico-digital. En sitios oscuros como CASLEO (Bortle 1), el término $B_{\text{sky}}$ disminuye en un factor superior a 20 respecto de zonas urbanas, permitiendo alcanzar la misma SNR con menos del 5% del tiempo de exposición requerido en ciudad.
+            </p>
+          </section>
+
+          <section class="space-y-2">
+            <h3 class="text-lg font-bold text-sky-400">4. Filosofía de Datos de sky-notebook</h3>
+            <p>
+              Inspirado en los principios de ingeniería de planta y reproducibilidad de Boxmark, <code>sky-notebook</code> estructura cada noche como un registro inmutable en texto plano:
+            </p>
+            <ul class="list-disc list-inside space-y-1 text-xs text-slate-300">
+              <li><strong>Zero Vendor Lock-in:</strong> Los datos se almacenan en Markdown puro con frontmatter YAML estándar, indexables con cualquier editor de texto o herramienta git.</li>
+              <li><strong>Trazabilidad Instrumental:</strong> Cada sesión guarda el snapshot exacto del tren óptico (apertura, distancia focal, modelo de sensor, filtros y colimación).</li>
+              <li><strong>Adaptación a Campo (Red Mode):</strong> La interfaz respeta la fisiología visual del observador nocturno, eliminando emisiones por debajo de 600 nm que degradan la rodopsina retiniana.</li>
+            </ul>
+          </section>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
+      <div>
+        <span>Desarrollado por <a href="https://github.com/lorenhey" target="_blank" class="text-sky-400 hover:underline font-semibold">Lorenzo Pérez (lorenhey)</a></span>
+        <span class="mx-2">•</span>
+        <span>Licencia MIT</span>
+      </div>
+      <div class="font-mono text-[11px]">
+        AstroMetrology & Observational Logging Suite
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="js/astro-calc.js"></script>
+  <script src="js/vault-store.js"></script>
+  <script src="js/altaz-plotter.js"></script>
+  <script src="js/cli-emulator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
